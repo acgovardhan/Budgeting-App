@@ -1,4 +1,4 @@
-export const wait = () => new Promise(res => setTimeout(res, Math.random()*2000))
+export const wait = () => new Promise(res => setTimeout(res, Math.random()*800))
 
 const generateRandomColor = () => {
   const existingBudgetLength = fetchData("budgets")?.length ?? 0;
@@ -32,3 +32,66 @@ export const createBudget = ({
     JSON.stringify([...existingBudgets, newItem])
   )
 }
+
+//create expense
+export const createExpense = ({
+  name, amount, budgetId
+}) =>{
+  const newItem = {
+    id: crypto.randomUUID(),
+    name: name,
+    createdAt : Date.now(),
+    amount: +amount,
+    budgetId: budgetId
+  }
+
+  const existingExpenses = fetchData("expenses") ?? [];
+  return localStorage.setItem("expenses", 
+    JSON.stringify([...existingExpenses, newItem])
+  )
+}
+
+//formating
+
+export const formatCurrency = (amt) => {
+  return amt.toLocaleString(undefined, {
+    style: "currency",
+    currency: "INR"
+  })
+}
+
+// formatting percentage
+
+export const formatPercentage = (amt) => {
+  return amt.toLocaleString(undefined, {
+    style: "percent",
+    minimumFractionDigits : 0
+  })
+}
+
+//total spend by budget
+
+export const calculateSpentByBudget = (budgetId) =>{
+  const expenses = fetchData("expenses") ?? [];
+  const budgetSpent = expenses.reduce((acc, expense) =>{
+    //check if expense.id === budgetId passed in
+    if(expense.budgetId !== budgetId)  return acc;
+
+    // add curr amount to total
+
+    return acc += expense.amount;
+      
+  },0)
+
+  return budgetSpent
+}
+
+//date format
+
+export const formatDateToLocaleString = (epoch) => new Date(epoch).toLocaleDateString()
+
+//get all items from local storage
+export const getAllMatchingItems = ({ category, key, value }) => {
+  const data = fetchData(category) ?? [];
+  return data.filter((item) => item[key] === value);
+};
